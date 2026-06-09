@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>単語ヒット＆ブロー</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <nav class="top-nav" aria-label="メインナビゲーション">
+          <button class="brand nav-button" data-screen="home" aria-label="ホームへ戻る">
+            <span class="brand-mark">語</span>
+            <span>単語ヒット＆ブロー</span>
+          </button>
+          <div class="nav-actions">
+            <button class="ghost nav-button" data-screen="ranking">ランキング</button>
+            <button class="ghost nav-button" data-screen="settings">設定</button>
+          </div>
+        </nav>
+
+        <section id="home" class="screen active" aria-labelledby="home-title">
+          <div class="hero-grid">
+            <div class="hero-copy">
+              <p class="eyebrow">ことばで遊ぶ推理ゲーム</p>
+              <h1 id="home-title">文字数だけを手がかりに、隠された単語を当てよう。</h1>
+              <p class="lead">
+                入力した単語に対して「ヒット」と「ブロー」が返ります。履歴を読み解いて、最短クリアや連続正解コンボを狙いましょう。
+              </p>
+              <div class="mode-cards" id="modeCards"></div>
+            </div>
+            <aside class="rule-card" aria-labelledby="rule-title">
+              <h2 id="rule-title">ルール早見表</h2>
+              <dl>
+                <div><dt>ヒット</dt><dd>文字も位置も一致</dd></div>
+                <div><dt>ブロー</dt><dd>文字は含むが位置が違う</dd></div>
+                <div><dt>□□□□</dt><dd>正解の文字数だけ表示</dd></div>
+              </dl>
+              <div class="example-box">
+                <strong>例：正解「ひまわり」</strong>
+                <span>しまうま → 1ヒット0ブロー</span>
+                <span>にわとり → 1ヒット1ブロー</span>
+                <span>さんだる → 0ヒット0ブロー</span>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </header>
+
+      <main>
+        <section id="game" class="screen game-screen" aria-labelledby="gameModeTitle">
+          <div class="game-layout">
+            <section class="panel play-panel">
+              <div class="game-header">
+                <div>
+                  <p class="eyebrow" id="gameModeLabel">NORMAL</p>
+                  <h2 id="gameModeTitle">問題 1</h2>
+                </div>
+                <div class="stat-pills">
+                  <span id="timerPill" class="pill">時間 ∞</span>
+                  <span id="comboPill" class="pill accent">コンボ x1.0</span>
+                </div>
+              </div>
+
+              <div class="question-box" aria-live="polite">
+                <div id="maskedWord" class="masked-word">□□□□</div>
+                <p id="categoryHint" class="category-hint">カテゴリ：すべて</p>
+              </div>
+
+              <form id="answerForm" class="answer-form">
+                <label for="answerInput">入力：</label>
+                <div class="input-row">
+                  <input id="answerInput" type="text" autocomplete="off" inputmode="text" placeholder="ひらがなのみ" pattern="[ぁ-ゖ]+" />
+                  <button type="submit" class="primary">回答</button>
+                </div>
+                <p class="input-help">正解と同じ文字数のひらがなのみ入力できます。</p>
+                <p id="message" class="message" role="status"></p>
+              </form>
+
+              <div class="game-actions">
+                <button id="giveUpButton" class="ghost">答えを見る</button>
+                <button id="nextButton" class="secondary" disabled>次の問題</button>
+                <button class="ghost nav-button" data-screen="home">ホーム</button>
+              </div>
+            </section>
+
+            <aside class="panel side-panel">
+              <h3>回答履歴</h3>
+              <ol id="historyList" class="history-list" aria-live="polite"></ol>
+              <div id="resultCard" class="result-card hidden">
+                <h3 id="resultTitle">PERFECT!!</h3>
+                <p id="resultText"></p>
+                <button id="shareButton" class="secondary">結果を共有</button>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="ranking" class="screen panel wide-panel" aria-labelledby="ranking-title">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Records</p>
+              <h2 id="ranking-title">ランキング</h2>
+            </div>
+            <button class="ghost nav-button" data-screen="home">ホームへ</button>
+          </div>
+          <div id="rankingGrid" class="ranking-grid"></div>
+        </section>
+
+        <section id="settings" class="screen panel wide-panel" aria-labelledby="settings-title">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Customize</p>
+              <h2 id="settings-title">設定</h2>
+            </div>
+            <button class="ghost nav-button" data-screen="home">ホームへ</button>
+          </div>
+          <form id="settingsForm" class="settings-grid">
+            <fieldset>
+              <legend>カテゴリ</legend>
+              <div id="categoryOptions" class="check-grid"></div>
+            </fieldset>
+            <fieldset>
+              <legend>難易度</legend>
+              <label><input type="radio" name="difficulty" value="easy" /> やさしい（3〜4文字）</label>
+              <label><input type="radio" name="difficulty" value="normal" /> ノーマル（3〜5文字）</label>
+              <label><input type="radio" name="difficulty" value="hard" /> むずかしい（4〜6文字）</label>
+            </fieldset>
+            <fieldset>
+              <legend>演出</legend>
+              <label><input type="checkbox" id="effectsToggle" /> 正解時の紙吹雪</label>
+            </fieldset>
+            <button class="primary" type="submit">設定を保存</button>
+          </form>
+        </section>
+      </main>
+    </div>
+    <div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
